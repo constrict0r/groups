@@ -207,6 +207,7 @@
       users: []
       group:
       configuration: https://is.gd/ORdeKK
+      expand: true
     failed_when: unified is variable_empty
 
   - name: Verify mary groups.
