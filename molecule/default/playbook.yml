@@ -3,6 +3,6 @@
   hosts: all
   roles:
     - role: groups
-      configuration: https://is.gd/ORdeKK
+      configuration: https://is.gd/KbHYn1
       users: [mary, jhon]
       group: [disk, sudo]
