@@ -1,0 +1,8 @@
+---
+- name: Converge
+  hosts: all
+  roles:
+    - role: groups
+      configuration: https://is.gd/ORdeKK
+      users: [mary, jhon]
+      group: [disk, sudo]

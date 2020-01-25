@@ -1,0 +1,15 @@
+@startuml
+'Use plantuml to view this file as an image: http://plantuml.com'
+
+skinparam monochrome true
+
+component autodebian {
+
+  package groups
+
+  package unify
+
+  groups --* unify
+
+}
+@enduml

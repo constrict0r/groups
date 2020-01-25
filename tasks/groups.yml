@@ -1,0 +1,27 @@
+---
+- name: Add users to groups.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Adding users to groups ...'
+      - '--------------------------------------------------------------------'
+
+- name: Add user to groups.
+  user:
+    name: "{{ current_user }}"
+    groups: "{{ unified_b }}"
+  when:
+    - not ansible_check_mode
+    - current_user is not variable_empty
+    - current_user.item_name is not defined
+  become: true
+
+- name: Add user to groups using item_name.
+  user:
+    name: "{{ current_user.item_name }}"
+    groups: "{{ unified_b }}"
+  when:
+    - not ansible_check_mode
+    - current_user is not variable_empty
+    - current_user.item_name is defined
+  become: true

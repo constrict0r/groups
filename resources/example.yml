@@ -1,0 +1,10 @@
+---
+# Example configuration.
+
+users:
+  - molly
+  - jhon
+
+group:
+  - disk
+  - sudo

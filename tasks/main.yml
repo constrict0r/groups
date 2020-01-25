@@ -1,0 +1,38 @@
+---
+- name: Display Role Details.
+  debug:
+    msg:
+      - '===================================================================='
+      - 'constrict0r.groups'
+      - 'Handle user groups.'
+      - '===================================================================='
+
+- name: Handle groups.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Managing groups ...'
+      - '--------------------------------------------------------------------'
+
+- name: Ensure groups exists.
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ unified_b }}"
+  when:
+    - not ansible_check_mode
+    - item is not variable_empty
+  become: true
+
+- name: Handle users.
+  debug:
+    msg:
+      - '--------------------------------------------------------------------'
+      - 'Managing users ...'
+      - '--------------------------------------------------------------------'
+
+- name: Add users to groups.
+  include_tasks: groups.yml
+  vars:
+    current_user: "{{ item }}"
+  with_items: "{{ unified }}"

@@ -1,0 +1,35 @@
+@startuml
+'Use plantuml to view this file as an image: http://plantuml.com'
+start
+
+skinparam monochrome true
+
+:Apply validations;
+
+if (validations passed?) then (yes)
+
+  :Set unified_b = groups + loaded configuration;
+
+  :Set unified = users + loaded configuration;
+
+  repeat
+
+    if (user exists?) then (yes)
+
+      repeat
+
+        :Add user to group;
+
+      repeat while (group in groups?)
+
+    else (no)
+    endif
+
+  repeat while (user in unified?)
+
+else (no)
+  :Show validation errors;
+endif
+
+end
+@enduml

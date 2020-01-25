@@ -1,0 +1,226 @@
+---
+# Tests for constrict0r.groups role.
+# Install the role and run from the repository root:
+# ansible-playbook -i tests/inventory tests/test-playbook.yml -K
+
+- name: Handle user groups - tests.
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  tasks:
+  - name: Requirements setup.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Setting up requirements.'
+        - '__________________________________________________________________'
+
+  - name: Download example-groups.yml file.
+    get_url:
+      url: https://is.gd/ORdeKK
+      dest: /tmp/example-groups.yml
+      force: yes
+
+  - name: Create required users.
+    user:
+      name: "{{ item }}"
+      password: "{{ 1234 | regex_replace('', '') | password_hash('sha512') }}"
+    with_items:
+      - mary
+      - jhon
+    become: true
+
+  - name: Test with null.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Testing with null ...'
+        - ' ,xXXXXx'
+        - ',XXXXXXXX'
+        - 'XXXXXXXXXX'
+        - '````XX```'
+        - '    XX'
+        - '    XX'
+        - '    XX'
+        - '__________________________________________________________________'
+
+  - name: Add users passing null.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users: null
+      group: null
+      configuration: null
+    failed_when: not unified == []
+
+  - name: Test with none.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Testing with none ...'
+        - '   __.......__'
+        - ' .`           `.'
+        - ':               :'
+        - ':               :'
+        - ' `.._________..`'
+        - '      :   :'
+        - '      :   :'
+        - '      :   :'
+        - '      `...`'
+        - '__________________________________________________________________'
+
+  - name: Add users passing none.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users:
+      group:
+      configuration:
+    failed_when: not unified == []
+
+  - name: Test with undefined.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Testing with undefined ...'
+        - '         ___..._'
+        - '    _,--`       ``-.'
+        - '  ,`.  .            \'
+        - ',/:. .     .       .'
+        - '|;..  .      _..--'
+        - '`--:...-,-```\'
+        - '        |:.  `.'
+        - '        l;.   l'
+        - '        `|:.   |'
+        - '         |:.   `.,'
+        - '        .l;.    j, ,'
+        - '     `.\`;:.   //,/'
+        - '      .\)`;,|\`/('
+        - '       ` `    `(,'
+        - '__________________________________________________________________'
+
+  - name: Add users passing undefined.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users: "{{ undefined_variable }}"
+      group: "{{ undefined_variable }}"
+      configuration: "{{ undefined_variable }}"
+    failed_when: not unified == []
+
+  - name: Test with empty.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Testing with empty ...'
+        - '        __....._' 
+        - '     .``         ``' 
+        - '   ."               `'  
+        - '  .                   ' 
+        - ' .       __...__       '
+        - '. _.--```       ```--._ '
+        - ':`                     `'
+        - ' `-.__    :    :   __.-`'
+        - '      ```-:    :-```' 
+        - '         J     '
+        - '         :     '
+        - '        J       '
+        - '        :       '
+        - '        `._____.'
+        - '------------------------------------------------------------------'
+
+  - name: Add users passing none.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users: ''
+      group: ''
+      configuration: ''
+    failed_when: not unified == []
+
+  - name: Test with non-empty.
+    debug:
+      msg:
+        - '__________________________________________________________________'
+        - 'Testing with non-empty ...'
+        - '        __....._'
+        - '     .`` _  o    ``'
+        - '   ." O (_)     () o`'
+        - '  .           O        '
+        - ' . ()   o__...__    O   '
+        - '. _.--```       ```--._ '
+        - ':`                     `'
+        - ' `-.__    :    :   __.-`'
+        - '      ```-:    :-```'
+        - '         J     '
+        - '         :     '
+        - '        J       '
+        - '        :       '
+        - '        `._____.'
+        - '__________________________________________________________________'
+
+  - name: Add users passing non-empty.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users: [mary, jhon]
+      group: sudo
+      configuration: /tmp/example-groups.yml
+    failed_when:
+      - unified is variable_empty
+      - unified_b is variable_empty
+
+  - name: Verify mary groups.
+    command: groups mary
+    register: groups_result
+    failed_when: groups_result.stdout is not search('sudo')
+
+  - name: Verify jhon groups.
+    command: groups jhon
+    register: groups_result
+    failed_when: groups_result.stdout is not search('disk')
+
+  - name: Test with non-empty - configuration by URL.
+    debug:
+      msg:
+        - '------------------------------------------------------------------'
+        - 'Testing with non-empty - configuration by URL ...'
+        - '      ----------'
+        - '    /  (_)_      \'
+        - '  /)     (_) (_)  \'
+        - ' |                 |'
+        - '| _   (_)   _   (_) |'
+        - '|(_)  _  (_) _   (_)|'
+        - '|___(_)_____(_)_____|'
+        - ' |||||||||||||||||||'
+        - '        |   |'
+        - '        |   |'
+        - '        |   |'
+        - '        |___|'
+        - '------------------------------------------------------------------'
+
+  - name: Add users passing configuration by URL.
+    import_role:
+      name: constrict0r.groups
+    vars:
+      users: []
+      group:
+      configuration: https://is.gd/ORdeKK
+    failed_when: unified is variable_empty
+
+  - name: Verify mary groups.
+    command: groups mary
+    register: groups_result
+    failed_when: groups_result.stdout is not search('sudo')
+
+  - name: Verify jhon groups.
+    command: groups jhon
+    register: groups_result
+    failed_when: groups_result.stdout is not search('disk')
+
+# Cleanup files.
+  - name: Cleanup /tmp/example-groups.yml file.
+    file:
+      path: /tmp/example-groups.yml
+      state: absent
