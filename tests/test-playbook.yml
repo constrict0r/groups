@@ -18,7 +18,7 @@
 
   - name: Download example-groups.yml file.
     get_url:
-      url: https://is.gd/ORdeKK
+      url: https://is.gd/KbHYn1
       dest: /tmp/example-groups.yml
       force: yes
 
@@ -206,7 +206,7 @@
     vars:
       users: []
       group:
-      configuration: https://is.gd/ORdeKK
+      configuration: https://is.gd/KbHYn1
       expand: true
     failed_when: unified is variable_empty
 
