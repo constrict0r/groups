@@ -130,15 +130,17 @@ Usage
         vars:
           group: [disk, sudo]
 
-To run tests:
+* To run tests:
 
-::
+..
 
-   cd groups
-   chmod +x testme.sh
-   ./testme.sh
+   ::
 
-On some tests you may need to use *sudo* to succeed.
+      cd groups
+      chmod +x testme.sh
+      ./testme.sh
+
+   On some tests you may need to use *sudo* to succeed.
 
 
 Variables
