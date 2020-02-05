@@ -401,7 +401,7 @@ Author
 .. image:: https://gitlab.com/constrict0r/img/raw/master/groups/author.png
    :alt: author
 
-The travelling vaudeville villain.
+The Travelling Vaudeville Villain.
 
 Enjoy!!!
 
