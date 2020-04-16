@@ -1,38 +1,39 @@
 
-groups
-******
+servicez
+********
 
-.. image:: https://gitlab.com/constrict0r/groups/badges/master/pipeline.svg
+.. image:: https://gitlab.com/constrict0r/servicez/badges/master/pipeline.svg
    :alt: pipeline
 
-.. image:: https://travis-ci.com/constrict0r/groups.svg
+.. image:: https://travis-ci.com/constrict0r/servicez.svg
    :alt: travis
 
-.. image:: https://readthedocs.org/projects/groups/badge
+.. image:: https://readthedocs.org/projects/servicez/badge
    :alt: readthedocs
 
-Ansible role to add users to system groups.
+Ansible role to manage system services.
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/groups.png
-   :alt: groups
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/avatar.png
+   :alt: avatar
 
-Full documentation on `Readthedocs <https://groups.readthedocs.io>`_.
+Full documentation on `Readthedocs
+<https://servicez.readthedocs.io>`_.
 
 Source code on:
 
-`Github <https://github.com/constrict0r/groups>`_.
+`Github <https://github.com/constrict0r/servicez>`_.
 
-`Gitlab <https://gitlab.com/constrict0r/groups>`_.
+`Gitlab <https://gitlab.com/constrict0r/servicez>`_.
 
-`Part of: <https://gitlab.com/explore/projects?tag=doombots>`_
+`Part of: <https://gitlab.com/explore/projects?tag=doombot>`_
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/doombots.png
-   :alt: doombots
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/doombot.png
+   :alt: doombot
 
 **Ingredients**
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/ingredients.png
-   :alt: ingredients
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/ingredient.png
+   :alt: ingredient
 
 
 Contents
@@ -41,12 +42,11 @@ Contents
 * `Description <#Description>`_
 * `Usage <#Usage>`_
 * `Variables <#Variables>`_
-   * `users <#users>`_
-   * `group <#group>`_
+   * `services <#services>`_
+   * `services_disable <#services-disable>`_
    * `configuration <#configuration>`_
 * `YAML <#YAML>`_
 * `Attributes <#Attributes>`_
-   * `item_name <#item-name>`_
    * `item_expand <#item-expand>`_
    * `item_path <#item-path>`_
 * `Requirements <#Requirements>`_
@@ -61,7 +61,7 @@ Contents
 Description
 ***********
 
-Ansible role to add users to system groups.
+Ansible role to manage system services.
 
 This role performs the following actions:
 
@@ -70,11 +70,18 @@ This role performs the following actions:
 * Ensure the current user can obtain administrative (root)
    permissions.
 
-* If the **users** variable is defined and the **groups** variable is
-   defined, add all users to the specified groups.
+* If the **services_disable** variable is defined, stop and disable
+   the services listed on it.
 
-* If the **configuration** variable is defined, add all users listed
-   on it to the specified groups.
+* If the **configuration** variable is defined, stop and disable the
+   *services_disable* listed on it.
+
+* If the **services** variable is defined, enable and start the
+   services listed on it.
+
+* If the **configuration** variable is defined, enable and start the
+   services listed on it.
+
 
 
 Usage
@@ -86,8 +93,8 @@ Usage
 
    ::
 
-      ansible-galaxy install constrict0r.groups
-      ansible localhost -m include_role -a name=constrict0r.groups -K
+      ansible-galaxy install constrict0r.servicez
+      ansible localhost -m include_role -a name=constrict0r.servicez -K
 
 * Passing variables:
 
@@ -95,8 +102,8 @@ Usage
 
    ::
 
-      ansible localhost -m include_role -a name=constrict0r.groups -K \
-          -e "{group: [disk, sudo]}"
+      ansible localhost -m include_role -a name=constrict0r.servicez -K \
+          -e "{services: ['mosquitto', 'nginx']}"
 
 * To include the role on a playbook:
 
@@ -106,7 +113,7 @@ Usage
 
       - hosts: servers
         roles:
-            - {role: constrict0r.groups}
+            - {role: constrict0r.servicez}
 
 * To include the role as dependency on another role:
 
@@ -115,8 +122,8 @@ Usage
    ::
 
       dependencies:
-        - role: constrict0r.groups
-          group: [disk, sudo]
+        - role: constrict0r.servicez
+          services: ['mosquitto', 'nginx']
 
 * To use the role from tasks:
 
@@ -126,21 +133,20 @@ Usage
 
       - name: Execute role task.
         import_role:
-          name: constrict0r.groups
+          name: constrict0r.servicez
         vars:
-          group: [disk, sudo]
+          services: ['mosquitto', 'nginx']
 
-* To run tests:
+To run tests:
 
-..
+::
 
-   ::
+   cd servicez
+   chmod +x testme.sh
+   ./testme.sh
 
-      cd groups
-      chmod +x testme.sh
-      ./testme.sh
+On some tests you may need to use *sudo* to succeed.
 
-   On some tests you may need to use *sudo* to succeed.
 
 
 Variables
@@ -149,13 +155,12 @@ Variables
 The following variables are supported:
 
 
-users
-=====
+services
+========
 
-List of users to be created. Each non-empty username listed on users
-will be created.
+List of services to enable and start.
 
-This list can be modified by passing an *users* array when including
+This list can be modified by passing a *services* array when including
 the role on a playbook or via *–extra-vars* from a terminal.
 
 This variable is empty by default.
@@ -163,50 +168,49 @@ This variable is empty by default.
 ::
 
    # Including from terminal.
-   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
-       "{users: [mary, jhon]}"
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+       "{services: [mosquitto, nginx]}"
 
    # Including on a playbook.
    - hosts: servers
      roles:
-       - role: constrict0r.groups
-         users:
-           - mary
-           - jhon
+       - role: constrict0r.servicez
+         services:
+           - mosquitto
+           - nginx
 
    # To a playbook from terminal.
    ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
-       "{users: [mary, jhon]}"
+       "{services: [mosquitto, nginx]}"
 
 
-group
-=====
+services_disable
+================
 
-List of groups to add all users into. Each non-empty username will be
-added to the groups specified on this variable.
+List of services to stop and disable.
 
-This list can be modified by passing an *groups* array when including
-the role on a playbook or via *–extra-vars* from a terminal.
+This list can be modified by passing a *services_disable* array when
+including the role on a playbook or via *–extra-vars* from a terminal.
 
 This variable is empty by default.
 
 ::
 
    # Including from terminal.
-   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
-       "{group: [disk, sudo]}"
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+       "{services_disable: [mosquitto, nginx]}"
 
    # Including on a playbook.
    - hosts: servers
      roles:
-       - role: constrict0r.groups
-         group:
-           - disk
-           - sudo
+       - role: constrict0r.servicez
+         services_disable:
+           - mosquitto
+           - nginx
 
    # To a playbook from terminal.
    ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
-       "{group: [disk, sudo]}"
+       "{services_disable: [mosquitto, nginx]}"
 
 
 configuration
@@ -223,15 +227,16 @@ This variable is empty by default.
 ::
 
    # Using file path.
-   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
        "configuration=/home/username/my-config.yml"
 
    # Using URL.
-   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
+   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
        "configuration=https://my-url/my-config.yml"
 
 To see how to write  a configuration file see the *YAML* file format
 section.
+
 
 
 YAML
@@ -251,8 +256,8 @@ You can include in the file the variables required for your tasks:
 ::
 
    ---
-   group:
-     - [disk, sudo]
+   services:
+     - ['mosquitto', 'nginx']
 
 If you want this role to load list of items from files and URLs you
 can set the **expand** variable to *true*:
@@ -260,12 +265,13 @@ can set the **expand** variable to *true*:
 ::
 
    ---
-   group: /home/username/my-config.yml
+   services: /home/username/my-config.yml
 
    expand: true
 
 If the expand variable is *false*, any file path or URL found will be
 treated like plain text.
+
 
 
 Attributes
@@ -277,18 +283,6 @@ handles the items data.
 The attributes supported by this role are:
 
 
-item_name
-=========
-
-Name of the item to load or create.
-
-::
-
-   ---
-   group:
-     - item_name: my-item-name
-
-
 item_expand
 ===========
 
@@ -298,7 +292,7 @@ just treat it as plain text.
 ::
 
    ---
-   group:
+   services:
      - item_expand: true
        item_path: /home/username/my-config.yml
 
@@ -311,10 +305,11 @@ Absolute file path or URL to a *.yml* file.
 ::
 
    ---
-   group:
+   services:
      - item_path: /home/username/my-config.yml
 
 This attribute also works with URLs.
+
 
 
 Requirements
@@ -341,6 +336,7 @@ If you want to run the tests, you will also need:
 * `Setuptools <https://pypi.org/project/setuptools/>`_.
 
 
+
 Compatibility
 *************
 
@@ -353,24 +349,27 @@ Compatibility
 * `Ubuntu Xenial <http://releases.ubuntu.com/16.04/>`_.
 
 
+
 License
 *******
 
 MIT. See the LICENSE file for more details.
 
 
+
 Links
 *****
 
-* `Github <https://github.com/constrict0r/groups>`_.
+* `Github <https://github.com/constrict0r/servicez>`_.
 
-* `Gitlab <https://gitlab.com/constrict0r/groups>`_.
+* `Gitlab <https://gitlab.com/constrict0r/servicez>`_.
 
-* `Gitlab CI <https://gitlab.com/constrict0r/groups/pipelines>`_.
+* `Gitlab CI <https://gitlab.com/constrict0r/servicez/pipelines>`_.
 
-* `Readthedocs <https://groups.readthedocs.io>`_.
+* `Readthedocs <https://servicez.readthedocs.io>`_.
 
-* `Travis CI <https://travis-ci.com/constrict0r/groups>`_.
+* `Travis CI <https://travis-ci.com/constrict0r/servicez>`_.
+
 
 
 UML
@@ -382,8 +381,8 @@ Deployment
 
 The full project structure is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/deployment.png
-   :alt: deployment
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/deploy.png
+   :alt: deploy
 
 
 Main
@@ -391,20 +390,22 @@ Main
 
 The project data flow is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/main.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/main.png
    :alt: main
+
 
 
 Author
 ******
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/author.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/author.png
    :alt: author
 
 The Travelling Vaudeville Villain.
 
 Enjoy!!!
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/enjoy.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/enjoy.png
    :alt: enjoy
+
 

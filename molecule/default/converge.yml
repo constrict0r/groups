@@ -1,0 +1,49 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  pre_tasks:
+    - name: Setting up test environment.
+      debug:
+        msg:
+          - '==============================================================='
+          - 'Pre tasks'
+          - '==============================================================='
+
+    - name: Ensure Python requirements installed.
+      apt:
+        name:
+          - python
+          - python-pip
+          - python-setuptools
+          - python3-pip
+          - python3-setuptools
+        state: present
+
+    - name: Ensure Pip requirements installed.
+      pip:
+        name:
+          - flake8
+          - requests
+      become: false
+      changed_when: false
+
+  roles:
+    - role: groupos
+      configuration: https://is.gd/I7s58p
+
+  post_tasks:
+    - name: Run verification tests.
+      debug:
+        msg:
+          - '================================================================'
+          - 'Post tasks'
+          - '================================================================'
+
+    - name: Verify /home/mary directory status.
+      stat:
+        path: /home/mary
+      register: stat_result
+      failed_when:
+        - not stat_result.stat.isdir is defined or not stat_result.stat.isdir
