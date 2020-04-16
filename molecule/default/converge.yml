@@ -30,7 +30,7 @@
       changed_when: false
 
   roles:
-    - role: groupos
+    - role: groups
       configuration: https://is.gd/I7s58p
 
   post_tasks:
