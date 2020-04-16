@@ -1,7 +1,7 @@
 Attributes
 ----------------------------------------------------------------
 
-.. include:: part/attributes.inc
+.. include:: part/attribute.inc
 
 .. include:: part/attribute/item_name.inc
 

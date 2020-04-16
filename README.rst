@@ -1,38 +1,37 @@
 
-servicez
-********
+groups
+******
 
-.. image:: https://gitlab.com/constrict0r/servicez/badges/master/pipeline.svg
+.. image:: https://gitlab.com/constrict0r/groups/badges/master/pipeline.svg
    :alt: pipeline
 
-.. image:: https://travis-ci.com/constrict0r/servicez.svg
+.. image:: https://travis-ci.com/constrict0r/groups.svg
    :alt: travis
 
-.. image:: https://readthedocs.org/projects/servicez/badge
+.. image:: https://readthedocs.org/projects/groups/badge
    :alt: readthedocs
 
-Ansible role to manage system services.
+Ansible role to add users to system groups.
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/avatar.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/avatar.png
    :alt: avatar
 
-Full documentation on `Readthedocs
-<https://servicez.readthedocs.io>`_.
+Full documentation on `Readthedocs <https://groups.readthedocs.io>`_.
 
 Source code on:
 
-`Github <https://github.com/constrict0r/servicez>`_.
+`Github <https://github.com/constrict0r/groups>`_.
 
-`Gitlab <https://gitlab.com/constrict0r/servicez>`_.
+`Gitlab <https://gitlab.com/constrict0r/groups>`_.
 
 `Part of: <https://gitlab.com/explore/projects?tag=doombot>`_
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/doombot.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/doombot.png
    :alt: doombot
 
 **Ingredients**
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/ingredient.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/ingredient.png
    :alt: ingredient
 
 
@@ -42,11 +41,12 @@ Contents
 * `Description <#Description>`_
 * `Usage <#Usage>`_
 * `Variables <#Variables>`_
-   * `services <#services>`_
-   * `services_disable <#services-disable>`_
+   * `users <#users>`_
+   * `group <#group>`_
    * `configuration <#configuration>`_
 * `YAML <#YAML>`_
 * `Attributes <#Attributes>`_
+   * `item_name <#item-name>`_
    * `item_expand <#item-expand>`_
    * `item_path <#item-path>`_
 * `Requirements <#Requirements>`_
@@ -61,7 +61,7 @@ Contents
 Description
 ***********
 
-Ansible role to manage system services.
+Ansible role to add users to system groups.
 
 This role performs the following actions:
 
@@ -70,17 +70,11 @@ This role performs the following actions:
 * Ensure the current user can obtain administrative (root)
    permissions.
 
-* If the **services_disable** variable is defined, stop and disable
-   the services listed on it.
+* If the **users** variable is defined and the **groups** variable is
+   defined, add all users to the specified groups.
 
-* If the **configuration** variable is defined, stop and disable the
-   *services_disable* listed on it.
-
-* If the **services** variable is defined, enable and start the
-   services listed on it.
-
-* If the **configuration** variable is defined, enable and start the
-   services listed on it.
+* If the **configuration** variable is defined, add all users listed
+   on it to the specified groups.
 
 
 
@@ -93,8 +87,8 @@ Usage
 
    ::
 
-      ansible-galaxy install constrict0r.servicez
-      ansible localhost -m include_role -a name=constrict0r.servicez -K
+      ansible-galaxy install constrict0r.groups
+      ansible localhost -m include_role -a name=constrict0r.groups -K
 
 * Passing variables:
 
@@ -102,8 +96,8 @@ Usage
 
    ::
 
-      ansible localhost -m include_role -a name=constrict0r.servicez -K \
-          -e "{services: ['mosquitto', 'nginx']}"
+      ansible localhost -m include_role -a name=constrict0r.groups -K \
+          -e "{group: [disk, sudo]}"
 
 * To include the role on a playbook:
 
@@ -113,7 +107,7 @@ Usage
 
       - hosts: servers
         roles:
-            - {role: constrict0r.servicez}
+            - {role: constrict0r.groups}
 
 * To include the role as dependency on another role:
 
@@ -122,8 +116,8 @@ Usage
    ::
 
       dependencies:
-        - role: constrict0r.servicez
-          services: ['mosquitto', 'nginx']
+        - role: constrict0r.groups
+          group: [disk, sudo]
 
 * To use the role from tasks:
 
@@ -133,15 +127,15 @@ Usage
 
       - name: Execute role task.
         import_role:
-          name: constrict0r.servicez
+          name: constrict0r.groups
         vars:
-          services: ['mosquitto', 'nginx']
+          group: [disk, sudo]
 
 To run tests:
 
 ::
 
-   cd servicez
+   cd groups
    chmod +x testme.sh
    ./testme.sh
 
@@ -155,12 +149,13 @@ Variables
 The following variables are supported:
 
 
-services
-========
+users
+=====
 
-List of services to enable and start.
+List of users to be created. Each non-empty username listed on users
+will be created.
 
-This list can be modified by passing a *services* array when including
+This list can be modified by passing an *users* array when including
 the role on a playbook or via *–extra-vars* from a terminal.
 
 This variable is empty by default.
@@ -168,49 +163,50 @@ This variable is empty by default.
 ::
 
    # Including from terminal.
-   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
-       "{services: [mosquitto, nginx]}"
+   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
+       "{users: [mary, jhon]}"
 
    # Including on a playbook.
    - hosts: servers
      roles:
-       - role: constrict0r.servicez
-         services:
-           - mosquitto
-           - nginx
+       - role: constrict0r.groups
+         users:
+           - mary
+           - jhon
 
    # To a playbook from terminal.
    ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
-       "{services: [mosquitto, nginx]}"
+       "{users: [mary, jhon]}"
 
 
-services_disable
-================
+group
+=====
 
-List of services to stop and disable.
+List of groups to add all users into. Each non-empty username will be
+added to the groups specified on this variable.
 
-This list can be modified by passing a *services_disable* array when
-including the role on a playbook or via *–extra-vars* from a terminal.
+This list can be modified by passing an *groups* array when including
+the role on a playbook or via *–extra-vars* from a terminal.
 
 This variable is empty by default.
 
 ::
 
    # Including from terminal.
-   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
-       "{services_disable: [mosquitto, nginx]}"
+   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
+       "{group: [disk, sudo]}"
 
    # Including on a playbook.
    - hosts: servers
      roles:
-       - role: constrict0r.servicez
-         services_disable:
-           - mosquitto
-           - nginx
+       - role: constrict0r.groups
+         group:
+           - disk
+           - sudo
 
    # To a playbook from terminal.
    ansible-playbook -i tests/inventory tests/test-playbook.yml -K -e \
-       "{services_disable: [mosquitto, nginx]}"
+       "{group: [disk, sudo]}"
 
 
 configuration
@@ -227,11 +223,11 @@ This variable is empty by default.
 ::
 
    # Using file path.
-   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
        "configuration=/home/username/my-config.yml"
 
    # Using URL.
-   ansible localhost -m include_role -a name=constrict0r.servicez -K -e \
+   ansible localhost -m include_role -a name=constrict0r.groups -K -e \
        "configuration=https://my-url/my-config.yml"
 
 To see how to write  a configuration file see the *YAML* file format
@@ -256,8 +252,8 @@ You can include in the file the variables required for your tasks:
 ::
 
    ---
-   services:
-     - ['mosquitto', 'nginx']
+   group:
+     - [disk, sudo]
 
 If you want this role to load list of items from files and URLs you
 can set the **expand** variable to *true*:
@@ -265,7 +261,7 @@ can set the **expand** variable to *true*:
 ::
 
    ---
-   services: /home/username/my-config.yml
+   group: /home/username/my-config.yml
 
    expand: true
 
@@ -283,6 +279,18 @@ handles the items data.
 The attributes supported by this role are:
 
 
+item_name
+=========
+
+Name of the item to load or create.
+
+::
+
+   ---
+   group:
+     - item_name: my-item-name
+
+
 item_expand
 ===========
 
@@ -292,7 +300,7 @@ just treat it as plain text.
 ::
 
    ---
-   services:
+   group:
      - item_expand: true
        item_path: /home/username/my-config.yml
 
@@ -305,7 +313,7 @@ Absolute file path or URL to a *.yml* file.
 ::
 
    ---
-   services:
+   group:
      - item_path: /home/username/my-config.yml
 
 This attribute also works with URLs.
@@ -360,15 +368,15 @@ MIT. See the LICENSE file for more details.
 Links
 *****
 
-* `Github <https://github.com/constrict0r/servicez>`_.
+* `Github <https://github.com/constrict0r/groups>`_.
 
-* `Gitlab <https://gitlab.com/constrict0r/servicez>`_.
+* `Gitlab <https://gitlab.com/constrict0r/groups>`_.
 
-* `Gitlab CI <https://gitlab.com/constrict0r/servicez/pipelines>`_.
+* `Gitlab CI <https://gitlab.com/constrict0r/groups/pipelines>`_.
 
-* `Readthedocs <https://servicez.readthedocs.io>`_.
+* `Readthedocs <https://groups.readthedocs.io>`_.
 
-* `Travis CI <https://travis-ci.com/constrict0r/servicez>`_.
+* `Travis CI <https://travis-ci.com/constrict0r/groups>`_.
 
 
 
@@ -381,7 +389,7 @@ Deployment
 
 The full project structure is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/deploy.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/deploy.png
    :alt: deploy
 
 
@@ -390,7 +398,7 @@ Main
 
 The project data flow is shown below:
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/main.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/main.png
    :alt: main
 
 
@@ -398,14 +406,14 @@ The project data flow is shown below:
 Author
 ******
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/author.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/author.png
    :alt: author
 
 The Travelling Vaudeville Villain.
 
 Enjoy!!!
 
-.. image:: https://gitlab.com/constrict0r/img/raw/master/servicez/enjoy.png
+.. image:: https://gitlab.com/constrict0r/img/raw/master/groups/enjoy.png
    :alt: enjoy
 
 
