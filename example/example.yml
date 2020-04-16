@@ -2,8 +2,9 @@
 # Example configuration.
 
 users:
-  - molly
+  - mary
   - jhon
+  - molly
 
 group:
   - disk
